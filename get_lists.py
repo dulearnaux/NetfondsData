@@ -15,13 +15,13 @@ def get_list_tickers_in_dir(directory=None):
     listdir=os.listdir(directory)
     TCKRS=[]
     for ls in listdir:
-        if not ls.endswith('.csv'):
-            continue
+#        if not ls.endswith('.csv'):
+#            continue
         
-        check = re.match("[A-Z]*?\.[A-Z]",ls)
+        check = re.match("[A-Z]*?\.[A-Z].",ls)
         if check==None:
             continue
-        TCKRS.append(check.group())
+        TCKRS.append(check.group()[:-1])#we do not wan to include the last '.' in TCKRS
     
     #remove duplicates
     TCKRS = list(set(TCKRS))
@@ -29,7 +29,7 @@ def get_list_tickers_in_dir(directory=None):
     return (TCKRS, listdir)    
     
 
-def get_file_list(TCKR,listdir, directory=None):
+def get_csv_file_list(TCKR,listdir, directory=None):
     """
     Input: single ticker in format 'TICKER.X', where X is netfonds exchange letter (N:NYSE,O:NASDAQ,A:AMEX)
     Returns the list of files with ticker=TCKR
@@ -42,8 +42,8 @@ def get_file_list(TCKR,listdir, directory=None):
     
     #listdir = os.listdir(directory)
     ls = str(listdir)
-    if 'RDS' in TCKR:
-        print 'hey'
+#    if 'RDS' in TCKR:
+#        print 'hey'
         
     #search for single run files    
     check = re.search('\''+TCKR+'\.[0-9]*\.csv\', ',ls)
@@ -57,7 +57,7 @@ def get_file_list(TCKR,listdir, directory=None):
         s=s.replace("'","")
         s=s.replace(", ","")
         files.append(s)
-        ls=ls.replace(check.group(),'xxxxx, ',1)            
+        ls=ls.replace(check.group(),'xxxxx, ',1)  #replace 1st instance of filename wit xxxxx          
         check = re.search("\'"+TCKR+"\.[0-9]*\.csv\', ",ls)     
     
     #search for combined files
