@@ -27,8 +27,8 @@ def pull_tickdata(toget=['SPX','ETF'], mktdata='combined'):
     
     log = pd.DataFrame()
     ndays = 18
-    if os.path.isfile(directory+'\\latest_dates.csv'):        
-        log = pd.read_csv(directory+'\\latest_dates.csv', index_col = 0, header=0)
+    if os.path.isfile(directory+'\\latest_dates\\latest_dates.csv'):        
+        log = pd.read_csv(directory+'\\latest_dates\\latest_dates.csv', index_col = 0, header=0)
         log['latest_date'] = log['latest_date'].map(lambda x: pd.datetime.strptime(x,'%Y-%m-%d %H:%M:%S'))
         latest_date = log['latest_date']
         #log['ticker']=log.index
@@ -44,8 +44,8 @@ def pull_tickdata(toget=['SPX','ETF'], mktdata='combined'):
         latest_date = df['latest_date'] 
         latest_default = date - pd.offsets.BDay(ndays)
     
-    log_file_output = open(directory+'logfile'+datestr+'.txt','w')
-    log_file_output2 = open(directory+'logfile.txt','a')
+    log_file_output = open(directory+'\\logfiles\\logfile'+datestr+'.txt','w')
+    log_file_output2 = open(directory+'\\logfiles\\logfile.txt','a')
     
     #i=0
     for i in tickers.index:
@@ -72,8 +72,8 @@ def pull_tickdata(toget=['SPX','ETF'], mktdata='combined'):
         else:
             latest_date=latest_date.append(pd.Series(date, index=[name]))
             log_file_output.write(name+' added to the ticker list on '+datestr + '\n')
-        latest_date.to_csv(directory+'\\latest_dates'+datestr+'.csv',header=['latest_date'], index_label=['ticker'])
-        latest_date.to_csv(directory+'\\latest_dates.csv', header=['latest_date'], index_label=['ticker'])
+        latest_date.to_csv(directory+'\\latest_dates\\latest_dates'+datestr+'.csv',header=['latest_date'], index_label=['ticker'])
+        latest_date.to_csv(directory+'\\latest_dates\\latest_dates.csv', header=['latest_date'], index_label=['ticker'])
         
         tempstr = "Daily files written: "+name +': Iter='+str(i) +' completed: Starts:ends='+ start_date.strftime('%Y-%m-%d')+':'+date.strftime('%Y-%m-%d')
         
@@ -86,7 +86,7 @@ def pull_tickdata(toget=['SPX','ETF'], mktdata='combined'):
     log_file_output.close()
     log_file_output2.close()
     log=latest_date
-    log.to_csv(directory+'\\latest_dates'+datestr+'.csv', header=['latest_date'], index_label=['ticker'])
-    log.to_csv(directory+'\\latest_dates.csv', header=['latest_date'], index_label=['ticker'])    
+    log.to_csv(directory+'\\latest_dates\\latest_dates'+datestr+'.csv', header=['latest_date'], index_label=['ticker'])
+    log.to_csv(directory+'\\latest_dates\\latest_dates.csv', header=['latest_date'], index_label=['ticker'])    
 
     return 
