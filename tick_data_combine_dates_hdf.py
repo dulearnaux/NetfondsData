@@ -40,8 +40,10 @@ def tick_data_combine_dates_single(TCKR, listdir, directory=None):
             temp.index=pd.to_datetime(temp.index)
             temp = temp.sort_index()
             files.remove(fl)
+            dates= list(pd.Series(temp.index).map(pd.Timestamp.date).unique())
             break
         store.append('dataframe', temp, format='table', complib='blosc', complevel=9,expectedrows=len(temp))
+        #store.append('dates', dates, format='table', complib='blosc', complevel=9,expectedrows=len(dates))        
         store.close()
         
     
@@ -56,7 +58,8 @@ def tick_data_combine_dates_single(TCKR, listdir, directory=None):
         olddates = []
     else:
         olddates= list(pd.Series(store.dataframe.index).map(pd.Timestamp.date).unique())
-    
+        #olddates = store.dates
+        
     #get list of files to read in
     for fl in files:
         if 'combined' in fl:
@@ -83,8 +86,11 @@ def tick_data_combine_dates_single(TCKR, listdir, directory=None):
         df['index'] = df.index    
         df = df.drop_duplicates()  
         del df['index']
-        df = df.sort_index()         
+        df = df.sort_index()
+        dates= list(pd.Series(df.index).map(pd.Timestamp.date).unique())         
+        #store.append('dates', dates, format='table',  complib='blosc', complevel=9, expectedrows=len(df))
         store.append('dataframe', df, format='table',  complib='blosc', complevel=9, expectedrows=len(df))
+    
     store.close()
    
     os.chdir(start_dir)
