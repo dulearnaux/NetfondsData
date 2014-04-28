@@ -29,7 +29,7 @@ def pull_tickdata(toget=['SPX','ETF'], mktdata='combined'):
     ndays = 18
     if os.path.isfile(directory+'\\latest_dates\\latest_dates.csv'):        
         log = pd.read_csv(directory+'\\latest_dates\\latest_dates.csv', index_col = 0, header=0)
-        log['latest_date'] = log['latest_date'].map(lambda x: pd.datetime.strptime(x,'%Y-%m-%d %H:%M:%S'))
+        log['latest_date'] = pd.to_datetime(log['latest_date'])
         latest_date = log['latest_date']
         #log['ticker']=log.index
         #latest_date.index=log['ticker']
