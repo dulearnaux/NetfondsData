@@ -12,21 +12,25 @@ def tick_data_combine_dates_single(TCKR, listdir, directory=None):
     Input: single ticker in format 'TICKER.X', where X is netfonds exchange letter (N:NYSE,O:NASDAQ,A:AMEX)
     Combines all tickdata files for the ticker in the directory, default = current.
     """
-        
+       
     start_dir = os.getcwd() #save start dir so we can revert back at the end of program
     if directory==None:
         directory = start_dir
     
     os.chdir(directory)
-    #directory='D:\Financial Data\Netfonds\DailyTickDataPull\Combined'
+
     #get list of files for ticker = TCKR
-    files = getl.get_file_list(TCKR, listdir, directory)
+    files = getl.get_csv_file_list(TCKR, listdir, directory)
     if files==1:
         return 1
 
+    """
+    run case for no H5 file.
+    if file doesn't exist, create it with the 1st csv data file, then close.    
+    """
     if not(os.path.isfile(directory+'\\'+TCKR+'.combined.h5')):
         store = pd.HDFStore(directory+'\\'+TCKR+'.combined.h5')
-        for fl in files:
+        for fl in files: #find 1st file to create appendable h5 with, then break out of loop.
             if 'combined' in fl:
                 continue
             temp = pd.read_csv(directory+'\\'+fl, header=0, index_col=0)
@@ -40,34 +44,42 @@ def tick_data_combine_dates_single(TCKR, listdir, directory=None):
         store.append('dataframe', temp, format='table', complib='blosc', complevel=9,expectedrows=len(temp))
         store.close()
         
+    
+    
+    """
+    Now can run case where H5 file exists
+    """
     store = pd.HDFStore(directory+'\\'+TCKR+'.combined.h5')
+
+    #get list of existing dates in the HDF5 data store
     if len(store.dataframe)==0:
-        maxdate=pd.datetime.min.date()
+        olddates = []
     else:
-        maxdate = store['dataframe'].index.max().date()
-#    dfcombined = pd.read_hdf(directory+'\\'+TCKR+'.combined.h5','dataframe')
-#    maxdate=dfcombined.ix[max(dfcombined.index)].index.date()
-    df = pd.DataFrame()
+        olddates= list(pd.Series(store.dataframe.index).map(pd.Timestamp.date).unique())
+    
+    #get list of files to read in
     for fl in files:
         if 'combined' in fl:
             continue
         date=pd.datetime.strptime(fl.replace('.csv','').replace(TCKR+'.',''),'%Y%m%d').date()
-        if date > maxdate:
-            temp = pd.read_csv(directory+'\\'+fl, header=0, index_col=0)
-            if len(temp)==0:
-                continue
-            temp=temp[['bid', 'bid_depth', 'bid_depth_total', 'offer', 'offer_depth', 'offer_depth_total', 'price', 'quantity']]
-            df = df.append(temp)
+        if date in olddates:
+            files.remove(fl)
+        
+    #read in the files to 'df'
+    df = pd.DataFrame()
+    for fl in files:
+        temp = pd.read_csv(directory+'\\'+fl, header=0, index_col=0)
+        if len(temp)==0:
+            continue
+        temp=temp[['bid', 'bid_depth', 'bid_depth_total', 'offer', 'offer_depth', 'offer_depth_total', 'price', 'quantity']]
+        df = df.append(temp)
     
     if len(df)>0:
+        #convert index to timeindex
         if type(df.index) != pd.tseries.index.DatetimeIndex:
-            df.index = pd.to_datetime(df.index)
-            #print '%-8s:converted index to DatatimeIndex' %TCKR
-    
-        #check new index is greater than maxdate
-        if df.index.min().date()<=maxdate:
-            df=df.ix[df.index > (pd.Timestamp(maxdate)+pd.offsets.Day(1))]
-            print TCKR + ' csv files have union data with h5 file'
+            df.index = pd.to_datetime(df.index)  
+         
+        #clean and append to the H5 data store.        
         df['index'] = df.index    
         df = df.drop_duplicates()  
         del df['index']
@@ -118,7 +130,7 @@ def tick_data_combine_dates_multi(TCKR=None, directories=None):
     
 if __name__=='__main__':
     os.chdir('D:\\Google Drive\\Python\\FinDataDownload')
-    directories = ['D:\\Financial Data\\Netfonds\\DailyTickDataPull\\Combined']
+    directories = ['D:\\Financial Data\\Netfonds\\DailyTickDataPull\\Combined\\ETF']
     tick_data_combine_dates_multi(directories=directories)    
     
         
