@@ -17,7 +17,8 @@ def digits_only(s):
     
 
 def zip_data_to_hdf_single_ticker(ticker, directory, compresstype = 'bz2'):
-    
+
+    retval='& none added 2 H5'    
     tarfl = directory + '\\'+ticker+'.tar'
     tar = tarfile.open(tarfl,'r')
     archived_files = tar.getnames() 
@@ -93,17 +94,18 @@ def zip_data_to_hdf_single_ticker(ticker, directory, compresstype = 'bz2'):
         store = pd.HDFStore(hdf)
         store.append('dataframe', df, format='table',  complib='blosc', complevel=9, expectedrows=len(df))
         store.close()
+        retval='and added to HDF5'
 
     #close opened files
     tar.close()   
     
-    return
+    return retval
     
     
 def zip_data_to_hdf_multi_ticker(directories, compresstype = 'bz2'):
             
     import time    
-    j=0    
+    j=0     
     start = time.time()
     for directory in directories:
         j=j+1
@@ -112,8 +114,8 @@ def zip_data_to_hdf_multi_ticker(directories, compresstype = 'bz2'):
         for ticker in tar_tickers_in_dir:
             i=i+1
             ticker=ticker.replace('.tar','')
-            zip_data_to_hdf_single_ticker(ticker,directory, 'bz2') 
-            print '%-8s:uncompressed and added to HDF5, iter '%ticker +str(i)+' of '+str(len(tar_tickers_in_dir))+ ', dir:'+str(j)+' of ' +str(len(directories)) + ' time=%5.2f' %((time.time()-start)/60)
+            retval=zip_data_to_hdf_single_ticker(ticker,directory, 'bz2') 
+            print '%-8s:uncmpd %s, iter '%(ticker,retval) +str(i)+' of '+str(len(tar_tickers_in_dir))+ ', dir:'+str(j)+' of ' +str(len(directories)) + ' time=%5.2f' %((time.time()-start)/60)
     return
                 
         
@@ -121,7 +123,7 @@ def zip_data_to_hdf_multi_ticker(directories, compresstype = 'bz2'):
         
 
 if __name__=='__main__':
-    directories = ['D:\\Financial Data\Netfonds\\DailyTickDataPull\\Combined\\ETF']
+    directories = ['D:\\Financial Data\Netfonds\\DailyTickDataPull\\Combined\\SPX']
     zip_data_to_hdf_multi_ticker(directories,'bz2')
     print 'done'    
 
