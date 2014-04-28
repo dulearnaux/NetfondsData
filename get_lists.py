@@ -5,7 +5,7 @@ import re
 
 def get_list_tickers_in_dir(directory=None):
     """
-    gets teh list of tickers in the directory
+    gets the list of tickers in the directory
     """
     start_dir = os.getcwd()
 
@@ -28,7 +28,33 @@ def get_list_tickers_in_dir(directory=None):
     os.chdir(start_dir)
     return (TCKRS, listdir)    
     
+def get_list_tar_tickers_in_dir(directory):
+    """
+    get the list of tickers that have been archived to TAR files
+    """
+    start_dir = os.getcwd()
 
+    if directory == None:
+        directory = start_dir
+        
+    listdir=os.listdir(directory)
+    TCKRS=[]
+    for ls in listdir:
+#        if not ls.endswith('.csv'):
+#            continue
+        
+        check = re.match("[A-Z]*?\.[A-Z].tar",ls)
+        if check==None:
+            continue
+        TCKRS.append(check.group())
+    
+    #remove duplicates
+    TCKRS = list(set(TCKRS))
+    os.chdir(start_dir)
+    return TCKRS       
+    
+    
+    
 def get_csv_file_list(TCKR,listdir, directory=None):
     """
     Input: single ticker in format 'TICKER.X', where X is netfonds exchange letter (N:NYSE,O:NASDAQ,A:AMEX)
