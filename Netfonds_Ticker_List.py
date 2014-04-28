@@ -216,4 +216,6 @@ def get_netfonds_tickers(toget=['SPX','ETF']):
     
     return temp[['ticker','folder']]   
     
-    
+if __name__=='__main__':
+    tickers = get_netfonds_tickers(toget=['SPX','ETF','AMEX','NYSE','NASDAQ']) 
+    print 'hey'
