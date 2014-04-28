@@ -9,7 +9,7 @@ import pandas as pd
 import get_lists as getl
 
 
-def compress_data_ticker(TCKR, listdir, directory, compression='gz', complevel=9):
+def compress_data_ticker(TCKR, listdir, directory, compression='bz2', complevel=9):
     start_dir = os.getcwd()
     os.chdir(directory)
     
@@ -30,8 +30,8 @@ def compress_data_ticker(TCKR, listdir, directory, compression='gz', complevel=9
         print 'could not archive any .csv files for:' +TCKR
         print 'create hdf5 file first with tick_data_combine'
         print 'program terminated'
-        f = open('createHDF.txt','a')
-        f.write(TCKR+'\n')
+        f = open('D:\\Financial Data\\Netfonds\\DailyTickDataPull\\errorlog.txt','a')
+        f.write('-8%s: no hdf5 file in directory: '%TCKR+directory+'\n')
         f.close()
         return 0
         
