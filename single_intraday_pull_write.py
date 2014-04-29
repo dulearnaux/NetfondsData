@@ -52,6 +52,10 @@ def single_intraday_pull_write(TCKR,date,extract='all', folder='', directory='')
             except socket.error, e:
                 print TCKR + ' OOPS: timeout error 3' + 'time='+str(time.time()-start)
                 print e
+            except urllib2.IncompleteRead, e:
+                print TCKR + ' OOPS: timeout error 4' + 'time='+str(time.time()-start)
+                print e
+                
             
            
         head='time,bid,bid_depth,bid_depth_total,offer,offer_depth,offer_depth_total'.split(',')
