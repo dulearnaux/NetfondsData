@@ -28,40 +28,40 @@ def compress_data_ticker(TCKR, listdir, directory, compression='bz2', complevel=
     hdf = TCKR+'.combined.h5'
     if not(os.path.isfile(hdf)):
         print TCKR+': no hdf5 file in:'+directory
-#        store = pd.HDFStore(hdf)
-#        store['dataframe'] = pd.DataFrame()
         print 'could not archive any .csv files for:' +TCKR
         print 'create hdf5 file first with tick_data_combine'
         print 'program terminated'
         f = open('D:\\Financial Data\\Netfonds\\DailyTickDataPull\\errorlog.txt','a')
-        f.write('-8%s: no hdf5 file in directory: '%TCKR+directory+'\n')
+        f.write('%-8s: no hdf5 file in directory:%s \n'%(TCKR,directory))
         f.close()
         return 0
         
         
     #get last saved date in hdf file. Everything <= this data gets archived    
-    store = pd.HDFStore(hdf)
-    maxdate = store['dataframe'].index.max().date()
-    store.close()    
+#    store = pd.HDFStore(hdf)
+#    maxdate = store['dataframe'].index.max().date()
+#    store.close()    
     
-    #remove combined files and files not merged into h5 file
+    #remove combined files #and files not merged into h5 file
     for fl in files_for_ticker:
         if 'combined' in fl:
             files_for_ticker.remove(fl)
-            continue
-        fl_datestr = fl.replace(TCKR+'.','').replace('.csv','')
-        fl_date = pd.datetime.strptime(fl_datestr, '%Y%m%d').date()
-        if fl_date > maxdate:
-            files_for_ticker.remove(fl)
+#            continue
+#        fl_datestr = fl.replace(TCKR+'.','').replace('.csv','')
+#        fl_date = pd.datetime.strptime(fl_datestr, '%Y%m%d').date()
+#        if fl_date > maxdate:
+#            files_for_ticker.remove(fl)
 
     if len(files_for_ticker)==0:
-        print TCKR+': no files exist where date < combined.h5 max'        
+        print TCKR+': no .csv files exist '        
         return 0
         
     #open the tarball    
     tar = tarfile.open(TCKR+'.tar','a')
-    already_archived_files = tar.getnames()    
-    for fl in already_archived_files: #remove names already in the tarball
+    already_archived_files = tar.getnames()  
+    
+    #remove names already in the tarball
+    for fl in already_archived_files: 
         if fl.replace('.'+compression,'') in files_for_ticker:
             files_for_ticker.remove(fl.replace('.'+compression,''))
             
@@ -81,7 +81,8 @@ def compress_data_ticker(TCKR, listdir, directory, compression='bz2', complevel=
        
         fcomp.write(data)
         fcomp.close()  
-        comp_files.append(outf) #create list of compressed files for adding to tarball         
+        #create list of compressed files for adding to tarball
+        comp_files.append(outf)          
 
     for fl in files_for_ticker:
         os.remove(fl)
@@ -89,7 +90,10 @@ def compress_data_ticker(TCKR, listdir, directory, compression='bz2', complevel=
     #loop through compressed files and add to tarball
     for fl in comp_files:
         if (fl in tar.getnames()): #check if its already in there
-            print fl+': is already in tarball'           
+            print fl+': is already in tarball'
+            f = open('D:\\Financial Data\\Netfonds\\DailyTickDataPull\\errorlog.txt','a')
+            f.write('%-8s: already in TAR archive:%s \n'%(fl,directory))
+            f.close()
             continue
         tar.add(fl)
     tar.close()
