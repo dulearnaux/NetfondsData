@@ -14,9 +14,12 @@ def compress_data_ticker(TCKR, listdir, directory, compression='bz2', complevel=
     os.chdir(directory)
     
     #get list of files for ticker
-    files_for_ticker = getl.get_file_list(TCKR, listdir, directory)
+    files_for_ticker = getl.get_csv_file_list(TCKR, listdir, directory)
     if (files_for_ticker==0):
         return 0
+    if (files_for_ticker=='no tickers'):
+        print TCKR + ': no files to archive in directory:' +directory
+        return None
     if len(files_for_ticker)==0:
         print TCKR + ': no files to archive in directory:' +directory
         return None
@@ -116,6 +119,6 @@ def compress_data_directory(directories, compression):
 if __name__ == '__main__':
     os.chdir('D:\\Google Drive\\Python\\FinDataDownload')
 
-    directories = ['D:\\Financial Data\\Netfonds\\DailyTickDataPull\\Combined']
+    directories = ['D:\\Financial Data\\Netfonds\\DailyTickDataPull\\Combined\\ETF']
     compress_data_directory(directories, 'bz2')
 

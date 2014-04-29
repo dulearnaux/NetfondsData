@@ -76,7 +76,7 @@ def get_csv_file_list(TCKR,listdir, directory=None):
     if check == None:
         print 'Error: ticker='+TCKR+' not found in:'
         print directory
-        return 1
+        return 'no tickers'
     files=[]
     while check !=None:
         s = str(check.group())
