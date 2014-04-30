@@ -21,7 +21,7 @@ def tick_data_combine_dates_single(TCKR, listdir, directory=None):
 
     #get list of files for ticker = TCKR
     files = getl.get_csv_file_list(TCKR, listdir, directory)
-    if files==1:
+    if files=='no tickers':
         return 1
 
     """
@@ -87,7 +87,7 @@ def tick_data_combine_dates_single(TCKR, listdir, directory=None):
         df = df.drop_duplicates()  
         del df['index']
         df = df.sort_index()
-        dates= list(pd.Series(df.index).map(pd.Timestamp.date).unique())         
+        #dates= list(pd.Series(df.index).map(pd.Timestamp.date).unique())         
         #store.append('dates', dates, format='table',  complib='blosc', complevel=9, expectedrows=len(df))
         store.append('dataframe', df, format='table',  complib='blosc', complevel=9, expectedrows=len(df))
     
