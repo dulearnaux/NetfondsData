@@ -9,6 +9,7 @@ import urllib2
 import socket
 import time
 import io
+import httplib
     
 def reporthook(a,b,c): 
     # ',' at the end of the line is important!
@@ -52,7 +53,7 @@ def single_intraday_pull_write(TCKR,date,extract='all', folder='', directory='')
             except socket.error, e:
                 print TCKR + ' OOPS: timeout error 3' + 'time='+str(time.time()-start)
                 print e
-            except urllib2.IncompleteRead, e:
+            except httplib.IncompleteRead, e:
                 print TCKR + ' OOPS: timeout error 4' + 'time='+str(time.time()-start)
                 print e
                 
@@ -100,7 +101,9 @@ def single_intraday_pull_write(TCKR,date,extract='all', folder='', directory='')
             except socket.error, e:
                 print TCKR + ' OOPS: timeout error 3' + 'time='+str(time.time()-start)
                 print e
-        
+            except httplib.IncompleteRead, e:
+                print TCKR + ' OOPS: timeout error 4' + 'time='+str(time.time()-start)
+                print e
 
         head='time,price,quantity,board,source,buyer,seller,initiator'.split(',')
         if not (head==df.columns.values).all():
