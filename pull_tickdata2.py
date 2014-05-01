@@ -7,7 +7,6 @@ def pull_tickdata(toget=['SPX','ETF'], mktdata='combined'):
     pulls intraday data, for multiple days, for specified tickers, from netfonds.com
     """
     import pandas as pd
-    #import numpy as np
     import os
     os.chdir('D:\\Google Drive\\Python\\FinDataDownload')
     import multi_intraday_pull2 as mul
@@ -31,8 +30,6 @@ def pull_tickdata(toget=['SPX','ETF'], mktdata='combined'):
         log = pd.read_csv(directory+'\\latest_dates\\latest_dates.csv', index_col = 0, header=0)
         log['latest_date'] = pd.to_datetime(log['latest_date'])
         latest_date = log['latest_date']
-        #log['ticker']=log.index
-        #latest_date.index=log['ticker']
         latest_date.index=log.index        
         latest_default = date - pd.offsets.BDay(ndays) 
     else:
@@ -47,12 +44,12 @@ def pull_tickdata(toget=['SPX','ETF'], mktdata='combined'):
     log_file_output = open(directory+'\\logfiles\\logfile'+datestr+'.txt','w')
     log_file_output2 = open(directory+'\\logfiles\\logfile.txt','a')
     
-    #i=0
+
     for i in tickers.index:
-        #i +=1
+
         name = tickers['ticker'][i]
         folder=tickers['folder'][i]
-        #name='AAPL.O'
+
         #get start date
         if (name in latest_date):
             start_date = (latest_date[name] + pd.offsets.BDay(1))
