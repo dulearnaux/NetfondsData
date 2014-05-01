@@ -63,6 +63,7 @@ def compress_data_ticker(TCKR, listdir, directory, compression='bz2', complevel=
     #remove names already in the tarball
     for fl in already_archived_files: 
         if fl.replace('.'+compression,'') in files_for_ticker:
+            os.remove(fl.replace('.'+compression,''))
             files_for_ticker.remove(fl.replace('.'+compression,''))
             
         
