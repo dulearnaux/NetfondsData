@@ -194,6 +194,15 @@ def get_netfonds_tickers(toget=['SPX','ETF']):
             except urllib2.URLError,e:
                 print 'OOPS: URLError on NYSE ticker list pull'
                 print e
+            except socket.timeout, e:
+                print TCKR + ' OOPS: socket timeout on NYSE ticker list pull'
+                print e
+            except socket.error, e:
+                print TCKR + ' OOPS: socket error on NYSE ticker list pull'
+                print e
+            except httplib.IncompleteRead, e:
+                print TCKR + ' OOPS: httplib Imcomplete error on NYSE ticker list pull'
+                print e
                     
         NYSE['ticker'] = NYSE['ticker']+'.N' #append the .N for netfonds exchange ID
         #temp = temp.append(pd.DataFrame(NYSE['ticker'], columns='ticker'))
