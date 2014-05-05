@@ -219,7 +219,7 @@ def get_netfonds_tickers(toget=['SPX','ETF']):
     temp = temp.drop_duplicates(cols='ticker') #remove duplicates
     temp['folder']=''   
     for key_,val_ in folder.iteritems():
-        temp['folder'][temp.ticker==key_]=val_+'\\'
+        temp['folder'][temp.ticker==key_]=val_ +'\\'
     
     temp.index = range(len(temp.index))
     
