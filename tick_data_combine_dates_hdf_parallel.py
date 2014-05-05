@@ -250,7 +250,7 @@ def combine_dates_multi_process_wrapper(TICKERs=None, indicies=None,  directorie
 #    return
     
 if __name__=='__main__':
-    exper  ='\\temp' #for experimenting in the temp folder
+    exper  =''# '\\temp' #for experimenting in the temp folder
     directory = 'D:\Financial Data\Netfonds'+exper + '\\DailyTickDataPull'
     os.chdir('D:\\Google Drive\\Python\\FinDataDownload')
     directories = [directory + '\\Combined\\ETF']    
