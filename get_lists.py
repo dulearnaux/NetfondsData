@@ -66,10 +66,12 @@ def get_csv_file_list(TCKR,listdir, directory=None):
     
     os.chdir(directory)
     
-    #listdir = os.listdir(directory)
+    #enables not entering valid listdir
+    if listdir==0:
+        listdir = os.listdir(directory)
+        
     ls = str(listdir)
-#    if 'RDS' in TCKR:
-#        print 'hey'
+
         
     #search for single run files    
     check = re.search('\''+TCKR+'\.[0-9]*\.csv\', ',ls)
