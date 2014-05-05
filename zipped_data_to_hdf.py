@@ -123,7 +123,7 @@ def zip_data_to_hdf_multi_ticker(directories, compresstype = 'bz2'):
         
 
 if __name__=='__main__':
-    directories = ['D:\\Financial Data\Netfonds\\DailyTickDataPull\\Combined\\SPX']
+    directories = ['D:\\Financial Data\Netfonds\\DailyTickDataPull\\Combined']
     zip_data_to_hdf_multi_ticker(directories,'bz2')
     print 'done'    
 

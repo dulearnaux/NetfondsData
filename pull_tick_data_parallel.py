@@ -20,7 +20,7 @@ http://stackoverflow.com/questions/11515944/how-to-use-multiprocessing-queue-in-
 def setup_parallel(toget=['SPX','ETF'], mktdata='combined', n_process=3):
     
     #some args for the write file
-    exper = 'temp\\' # used to change directory when experimenting with code.
+    exper = ''#'temp\\' # used to change directory when experimenting with code.
     directory = 'D:\\Financial Data\\Netfonds\\'+exper +'DailyTickDataPull'
     date = pd.datetime.strptime(pd.datetime.now().strftime('%Y%m%d'),'%Y%m%d')  - pd.offsets.BDay(1)
     datestr = date.strftime('%Y%m%d')
