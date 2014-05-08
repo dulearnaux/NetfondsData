@@ -8,20 +8,12 @@ import multiprocessing
 import sys
 import time
 
-"""
-try using multiprocessing.Queue() to get ticker latest_dates as they get done
-can also try writing to the ouput file
-http://stackoverflow.com/questions/8329974/can-i-get-a-return-value-from-multiprocessing-process
-http://stackoverflow.com/questions/11515944/how-to-use-multiprocessing-queue-in-python
 
-"""
-
-
-def setup_parallel(toget=['SPX','ETF'], mktdata='combined', n_process=3):
+def setup_parallel(toget=['SPX','ETF'], mktdata='combined', n_process=3, 
+                    baseDir = 'D:\\Financial Data\\Netfonds\\DailyTickDataPull'):
     
     #some args for the write file
-    exper = ''#'temp\\' # used to change directory when experimenting with code.
-    directory = 'D:\\Financial Data\\Netfonds\\'+exper +'DailyTickDataPull'
+    directory = baseDir
     date = pd.datetime.strptime(pd.datetime.now().strftime('%Y%m%d'),'%Y%m%d')  - pd.offsets.BDay(1)
     datestr = date.strftime('%Y%m%d')
     
@@ -152,6 +144,8 @@ def pull_tickdata_parallel(queue, tickers, latest_date, mktdata='combined',nTot=
     
     return 
     
-if __name__=='__main__':        
-    ls=setup_parallel(toget=['ETF'], mktdata='combined', n_process=6)
+if __name__=='__main__':    
+    exper = ''  #\\temp  
+    directory = 'D:\\Financial Data\\Netfonds%s\\DailyTickDataPull'%exper  
+    ls=setup_parallel(toget=['ETF'], mktdata='combined', n_process=6,baseDir = directory)
     print 'hey'

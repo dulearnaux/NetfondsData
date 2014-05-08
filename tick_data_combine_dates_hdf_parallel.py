@@ -66,10 +66,8 @@ def tick_data_combine_dates_single(ticker, listdir, directory=None):
             temp.index=pd.to_datetime(temp.index)
             temp = temp.sort_index()
             files.remove(fl)
-#            dates= list(pd.Series(temp.index).map(pd.Timestamp.date).unique())
             break
         store.append('dataframe', temp, format='table', complib='blosc', complevel=9,expectedrows=len(temp))
-        #store.append('dates', dates, format='table', complib='blosc', complevel=9,expectedrows=len(dates))        
         store.close()
         
     
@@ -100,7 +98,6 @@ def tick_data_combine_dates_single(ticker, listdir, directory=None):
     files=files2
             
                 
-        
     #read in the files to 'df'
     df = pd.DataFrame()
     for fl in files:
@@ -140,20 +137,10 @@ def combine_dates_multi_process_wrapper(TICKERs=None, indicies=None,  directorie
     if directory is not passed, act within the current directory
     """    
     curdir = os.getcwd() # save starting directory so we can revert back at end of function    
-#    curdir = 'D:\\Google Drive\\Python\\FinDataDownload'
-#    os.chdir(curdir)
-
-#    start=time.time()
-#    if directories==None:
-#        directories=[start_dir]
-#    if type(directories)!= list:
-#        directories = [directories]
-#        print 'converted directories input to a list'
    
-    """
-    Create dictionsry with {ticker:directory} pairs
-    This is needed to tell the single_ticker_combine file where to look for files
-    """
+
+    #Create dictionsry with {ticker:directory} pairs
+    #This is needed to tell the single_ticker_combine file where to look for files
     dirs={}    
     if (TICKERs!=None):
         assert type(TICKERs)==list
@@ -184,7 +171,6 @@ def combine_dates_multi_process_wrapper(TICKERs=None, indicies=None,  directorie
         for directory in directories:
             #get list of tickers in the directory
             tckrs, listdir = getl.get_list_tickers_in_dir(directory)
-#            tckrs = tckrs.ticker.values.tolist()
             TICKERs.extend(tckrs)
             lsdirs.extend([directory]*len(tckrs))
         dirs = dict(itertools.izip(TICKERs,lsdirs))
@@ -197,7 +183,6 @@ def combine_dates_multi_process_wrapper(TICKERs=None, indicies=None,  directorie
         lsdirs = TICKERs.folder.values.tolist()
         TICKERs = TICKERs.ticker.values.tolist()
         dirs = dict(itertools.izip(TICKERs,lsdirs))
-       
        
        
     #allocate tickers to different processes
@@ -228,26 +213,6 @@ def combine_dates_multi_process_wrapper(TICKERs=None, indicies=None,  directorie
     
     return
     
-    
-    
-#    for directory in directories:
-#            
-#        if TICKERs==None: #get list of tickers in the directory
-#            TICKERs, listdir = getl.get_list_tickers_in_dir(directory)
-#        else:
-#            TICKERs = NTL.get_netfonds_tickers(TICKERs)
-#            TICKERs = TICKERs.ticker.values.tolist()
-#        i=0    
-#        for tckr in TICKERs:
-#            i=i+1
-#            tick_data_combine_dates_single(tckr, listdir, directory)
-#            print '%-8s:dates combined, '%tckr +str(i)+' of '+str(len(TICKERs)) + ', in time=%7.3f'%((time.time()-start)/60)+' mins'
-#         
-#        os.chdir(start_dir)
-#        TICKERs=None
-#        print 'Combine dates completed after '+str((time.time()-start)/60) + ' mins'
-#        
-#    return
     
 if __name__=='__main__':
     exper  =''# '\\temp' #for experimenting in the temp folder
