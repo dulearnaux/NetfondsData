@@ -10,6 +10,7 @@ import socket
 import time
 import io
 import httplib
+import sys
     
 def reporthook(a,b,c): 
     # ',' at the end of the line is important!
@@ -30,11 +31,11 @@ def single_intraday_pull_write(TCKR,date,extract='all', folder='', directory='')
         url = ('http://hopey.netfonds.no/posdump.php?date=' 
                 +datestr+'&paper=%s&csv_format=csv')        
 
-#        df = pd.read_csv(url %TCKR)
         urlread=0
         while urlread==0:   
             start=time.time()
-            try:                
+            try:     
+                sys.stdout.flush()
                 buff = urllib2.urlopen(url %TCKR) 
                 csvstring = buff.read()
                 if 'This stock does not exist' in csvstring:
