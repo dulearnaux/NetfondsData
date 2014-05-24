@@ -7,10 +7,10 @@ import Netfonds_Ticker_List as NTL
 import multiprocessing
 import sys
 import time
-
+import StringIO
 
 def setup_parallel(toget=['SPX','ETF'], mktdata='combined', n_process=3, 
-                    baseDir = 'D:\\Financial Data\\Netfonds\\DailyTickDataPull'):
+                    baseDir = 'D:\\Financial Data\\Netfonds\\DailyTickDataPull', supress='yes'):
     
     #some args for the write file
     directory = baseDir
@@ -50,7 +50,7 @@ def setup_parallel(toget=['SPX','ETF'], mktdata='combined', n_process=3,
     #start the pull data processes
     jobs=[]
     for tickers in df_list:
-        p = multiprocessing.Process(target=pull_tickdata_parallel, args=(queue, tickers,latest_dates_df, 'combined', length, start, directory))
+        p = multiprocessing.Process(target=pull_tickdata_parallel, args=(queue, tickers,latest_dates_df, 'combined', length, start, directory, supress))
         jobs.append(p)
         p.start()
     
@@ -82,7 +82,8 @@ def write_latest_dates(queue,latest_dates_df, directory, date, datestr, length):
                 latest_dates_df.set_value(index=msg.keys()[0], col='latest_date',value=msg.values()[0])
                 print 'Added %s to latest_date file' %msg.keys()[0]
                 
-            latest_dates_df.to_csv(directory+'\\latest_dates\\latest_dates.csv')            
+            latest_dates_df.to_csv(directory+'\\latest_dates\\latest_dates.csv')         
+            latest_dates_df.to_csv(directory+'\\latest_dates\\latest_dates%s.csv'%datestr) 
             ind = tempstr.index('Iter=')
             tempstr=tempstr.replace(tempstr[ind:(ind+10)], 'Iter=%5d of %5d'%(i,length) )            
             print tempstr
@@ -106,7 +107,7 @@ def write_latest_dates(queue,latest_dates_df, directory, date, datestr, length):
     
 
 
-def pull_tickdata_parallel(queue, tickers, latest_date, mktdata='combined',nTot=0,sTime=0, directory=''):
+def pull_tickdata_parallel(queue, tickers, latest_date, mktdata='combined',nTot=0,sTime=0, directory='', supress='yes'):
     """
     pulls intraday data, for multiple days, for specified tickers, from netfonds.com
     """ 
@@ -134,10 +135,16 @@ def pull_tickdata_parallel(queue, tickers, latest_date, mktdata='combined',nTot=
         
         #pull intraday data from the web for the current stock or index
         #positions, trades, combined 
+        if supress=='yes': #suppresses the print statements in multi_intraday_pull2()
+            sys.stdout = StringIO.StringIO()
+            
         data = mul.multi_intraday_pull2(name, pd.datetime.date(start_date), date.date(), 30,mktdata, folder, directory)
-                   
-        print pName+ ": Daily files written: "+name +': Iter=%5d'%i +' completed: Starts:ends='+ start_date.strftime('%Y-%m-%d')+':'+date.strftime('%Y-%m-%d')
-        tempstr = pName + ': Iter=%5d'%i+' complete in %5.2f min'%((time.time()-sTime)/60)        
+        print pName+ ": %-3d daily files written: "%data[1] +name +': Iter=%5d'%i +' completed: Starts:ends='+ start_date.strftime('%Y-%m-%d')+':'+date.strftime('%Y-%m-%d')
+        
+        if supress=='yes':
+            sys.stdout = sys.__stdout__          
+          
+        tempstr = '%-12s: %-10s: Iter=%5d'%(pName,name,i)+ ' %-3s'%data +' complete in %5.2f min'%((time.time()-sTime)/60)        
         to_pass = ({name:date}, tempstr)
         queue.put(to_pass)  
         sys.stdout.flush()

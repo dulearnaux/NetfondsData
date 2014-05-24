@@ -55,11 +55,12 @@ def multi_intraday_pull2(TCKR,start=None,end=None, maxiter=30,extract='all', fol
             retcode = temp
             print TCKR +": singl_intraday_pull failed for iter="+str(i)+" and date="+date.strftime('%Y%m%d')
             date = date - dt.timedelta(days=1) 
+            i-=1
             continue
             
         print TCKR +": succesfully pulled iter=" +str(i) + " for date="+date.strftime('%Y-%m-%d')
     
         date = date - dt.timedelta(days=1)
         
-    return 'ok'
+    return str(i)
      
