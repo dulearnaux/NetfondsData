@@ -139,12 +139,12 @@ def pull_tickdata_parallel(queue, tickers, latest_date, mktdata='combined',nTot=
             sys.stdout = StringIO.StringIO()
             
         data = mul.multi_intraday_pull2(name, pd.datetime.date(start_date), date.date(), 30,mktdata, folder, directory)
-        print pName+ ": %-3d daily files written: "%data[1] +name +': Iter=%5d'%i +' completed: Starts:ends='+ start_date.strftime('%Y-%m-%d')+':'+date.strftime('%Y-%m-%d')
+        print pName+ ": %-3s daily files written: "%data +name +': Iter=%5d'%i +' completed: Starts:ends='+ start_date.strftime('%Y-%m-%d')+':'+date.strftime('%Y-%m-%d')
         
         if supress=='yes':
             sys.stdout = sys.__stdout__          
           
-        tempstr = '%-12s: %-10s: Iter=%5d'%(pName,name,i)+ ' %-3s'%data +' complete in %5.2f min'%((time.time()-sTime)/60)        
+        tempstr = '%-12s: %-10s: Iter=%5d'%(pName,name,i)+ ', %-3s'%data +' complete in %5.2f min'%((time.time()-sTime)/60)        
         to_pass = ({name:date}, tempstr)
         queue.put(to_pass)  
         sys.stdout.flush()

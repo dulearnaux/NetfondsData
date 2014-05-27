@@ -6,11 +6,12 @@ import time
 import itertools
 import multiprocessing
 import sys
+import StringIO
 import Netfonds_Ticker_List as NTL
 import get_lists as getl
 
 
-def tick_data_combine_dates_multi(TICKERs,base_dir, ticker_folder, start):
+def tick_data_combine_dates_multi(TICKERs,base_dir, ticker_folder, start, supress='yes'):
     """
     combines files across dates into single file for tickers in TICKERs
     TICKERs must be a list of tickers
@@ -22,11 +23,19 @@ def tick_data_combine_dates_multi(TICKERs,base_dir, ticker_folder, start):
     for ticker in TICKERs:
         i+=1
         directory = ticker_folder[ticker]
+        
+        if supress=='yes': #supress print output of the single ticker function
+            sys.stdout =  StringIO.StringIO()
+    
         val = tick_data_combine_dates_single(ticker, 0, directory) # listdir=0 mean get_list will obtain listdir
+        
+        if supress=='yes': #restore print output
+            sys.stdout=sys.__stdout__
+            
         if val==1:
             print pName + ':%8s, %5s of %5s, no files to combine %-7.2f mins' %(ticker,i,len(TICKERs),((time.time()-start)/60))
         else:
-            print pName + ':%8s, %5s of %5s, Combine dates completed after %-7.2f mins' %(ticker,i,len(TICKERs),((time.time()-start)/60))
+            print pName + ':%8s, %5s of %5s, %s dates combined in %-7.2f mins' %(ticker,i,len(TICKERs),val,((time.time()-start)/60))
         sys.stdout.flush()
         
     return
@@ -47,8 +56,8 @@ def tick_data_combine_dates_single(ticker, listdir, directory=None):
 
     #get list of files for ticker = ticker
     files = getl.get_csv_file_list(ticker, listdir, directory) 
-    if files=='no ticker':
-        return 1
+    if files=='no tickers':
+        return 'no tickers'
 
     """
     run case for no H5 file.
@@ -99,6 +108,7 @@ def tick_data_combine_dates_single(ticker, listdir, directory=None):
             
                 
     #read in the files to 'df'
+    i=0
     df = pd.DataFrame()
     for fl in files:
         temp = pd.read_csv(directory+'\\'+fl, header=0, index_col=0)
@@ -106,6 +116,7 @@ def tick_data_combine_dates_single(ticker, listdir, directory=None):
             continue
         temp=temp[['bid', 'bid_depth', 'bid_depth_total', 'offer', 'offer_depth', 'offer_depth_total', 'price', 'quantity']]
         df = df.append(temp)
+        i+=1
     
     if len(df)>0:
         #convert index to timeindex
@@ -124,10 +135,10 @@ def tick_data_combine_dates_single(ticker, listdir, directory=None):
     store.close()
    
     os.chdir(start_dir)
-    return 0
+    return str(i)
     
     
-def combine_dates_multi_process_wrapper(TICKERs=None, indicies=None,  directories=None, n_process=3):
+def combine_dates_multi_process_wrapper(TICKERs=None, indicies=None,  directories=None, n_process=3, supress='yes'):
     """
     all inputs must be of type list()
     
@@ -204,7 +215,7 @@ def combine_dates_multi_process_wrapper(TICKERs=None, indicies=None,  directorie
         tick_data_combine_dates_multi(ls_list[0],curdir,dirs,start)
     else: #initiate seperate processes to combine dates
         for tickers in ls_list:
-            p = multiprocessing.Process(target=tick_data_combine_dates_multi, args=(tickers,curdir,dirs,start))
+            p = multiprocessing.Process(target=tick_data_combine_dates_multi, args=(tickers,curdir,dirs,start, supress))
             jobs.append(p)
             p.start()
         for j in jobs:
@@ -219,6 +230,6 @@ if __name__=='__main__':
     directory = 'D:\Financial Data\Netfonds'+exper + '\\DailyTickDataPull'
     os.chdir('D:\\Google Drive\\Python\\FinDataDownload')
     directories = [directory + '\\Combined\\ETF']    
-    combine_dates_multi_process_wrapper(TICKERs=None, indicies=None,  directories=directories, n_process=3)
+    combine_dates_multi_process_wrapper(TICKERs=None, indicies=None,  directories=directories, n_process=3, supress='yes')
         
 

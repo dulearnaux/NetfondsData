@@ -6,10 +6,12 @@ import gzip
 import bz2
 import os
 import sys
+import StringIO
 import time   
 import itertools
 import multiprocessing
 import get_lists as getl
+import HDFcreate as HDFcreate
 
 
 def compress_tickers_parallel(tickers=None, directories=None, compression='bz2', complevel=9, n_process=1):
@@ -87,7 +89,7 @@ def compress_tickers_parallel(tickers=None, directories=None, compression='bz2',
     return
     
     
-def compress_data_multi_tickers(TICKERs, dirs, start, compression='bz2', complevel=9):
+def compress_data_multi_tickers(TICKERs, dirs, start, compression='bz2', complevel=9, supress='yes'):
 
     i=0      
     pName = multiprocessing.current_process().name
@@ -95,8 +97,19 @@ def compress_data_multi_tickers(TICKERs, dirs, start, compression='bz2', complev
     for ticker in TICKERs:
             i=i+1
             directory=dirs[ticker]
-            compress_data_single_ticker(ticker, listdir, directory,compression,complevel) 
-            print '%s: %-8s:compressed, iter=%-4.0d of %-4.0d,  time=%5.2f'%(pName,ticker,i,len(TICKERs),((time.time()-start)/60)) 
+            
+            if supress=='yes': #suppress printing to stdout
+                sys.stdout = StringIO.StringIO()
+                
+            string = compress_data_single_ticker(ticker, listdir, directory,compression,complevel) 
+            
+            if supress=='yes': #switch printing to stdout back on
+                sys.stdout = sys.__stdout__
+            
+            if type(string)!=str:               
+                string=''
+                
+            print '%s: %-8s:%s compressed, iter=%-4.0d of %-4.0d,  time=%5.2f'%(pName,ticker,string,i,len(TICKERs),((time.time()-start)/60)) 
             sys.stdout.flush()
             
     return
@@ -118,16 +131,19 @@ def compress_data_single_ticker(TCKR, listdir, directory, compression='bz2', com
         return 0
     if (files_for_ticker=='no tickers'):
         print TCKR + ': no files to archive in directory:' +directory
+        string ='none '
         sys.stdout.flush()
-        return None
+        return string
     if len(files_for_ticker)==0:
         print TCKR + ': no files to archive in directory:' +directory
+        string ='none '        
         sys.stdout.flush()
-        return None
+        return string
 
     #check if hdf file exists for this ticker    
     hdf = TCKR+'.combined.h5'
     if not(os.path.isfile(hdf)):
+#        HDFcreate.create(TCKR, directory)        
         print TCKR+': no hdf5 file in:'+directory
         print 'could not archive any .csv files for:' +TCKR
         print 'create hdf5 file first with tick_data_combine'
@@ -147,7 +163,8 @@ def compress_data_single_ticker(TCKR, listdir, directory, compression='bz2', com
     if len(files_for_ticker)==0:
         print TCKR+': no .csv files exist ' 
         sys.stdout.flush()
-        return 0
+        string ='none ' 
+        return string
         
     #open the tarball    
     tar = tarfile.open(TCKR+'.tar','a')
@@ -182,6 +199,7 @@ def compress_data_single_ticker(TCKR, listdir, directory, compression='bz2', com
         os.remove(fl)
         
     #loop through compressed files and add to tarball
+    i=0
     for fl in comp_files:
         if (fl in tar.getnames()): #check if its already in there
             print fl+': is already in tarball'
@@ -191,6 +209,7 @@ def compress_data_single_ticker(TCKR, listdir, directory, compression='bz2', com
             sys.stdout.flush()
             continue
         tar.add(fl)
+        i+=1
     tar.close()
     #remove compressed files outside of archive
     for fl in comp_files:
@@ -198,7 +217,7 @@ def compress_data_single_ticker(TCKR, listdir, directory, compression='bz2', com
         
     os.chdir(start_dir)
     sys.stdout.flush()
-    return None
+    return str(i)
 
 
         

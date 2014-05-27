@@ -76,7 +76,7 @@ def get_csv_file_list(TCKR,listdir, directory=None):
     #search for single run files    
     check = re.search('\''+TCKR+'\.[0-9]*\.csv\', ',ls)
     if check == None:
-        print 'Error: ticker='+TCKR+' not found in:'
+        print 'Error: ticker='+TCKR+' single date csv not found in:'
         print directory
         return 'no tickers'
     files=[]
