@@ -1,15 +1,46 @@
 # -*- coding: utf-8 -*-
 
 import pandas as pd
+import numpy as np
 import os 
 import time
 import itertools
 import multiprocessing
 import sys
 import StringIO
+import glob
+
 import Netfonds_Ticker_List as NTL
 import get_lists as getl
 
+def HDF_create_date_node(file_):
+    """creates a node for all available dates in an existing HDF5 file"""
+    store = pd.HDFStore(file_)
+    dates = np.unique(store.dataframe.index.date).sort()
+    dates2 = pd.DataFrame(pd.to_datetime(dates), index=dates, columns=['dates'])
+    store.put('dates', dates2, format='fixed',expectedrows=len(dates2))
+    store.close()
+    return
+    
+def HDF_create_date_nodes_multi(directories):
+    """runs HDF_create_date_node() on all HDF5 files in the directories"""
+
+    #get the files in the directories
+    start_dir = os.getcwd() 
+    files=[]
+    i,j=0,0
+    for directory in directories:
+        j+=1
+        os.chdir(directory)
+        files=glob.glob("*.combined.h5") 
+        n=len(files)
+        for fl in files:
+            i+=1
+            HDF_create_date_node(fl)
+            print 'completed date node for i=%d of %d, dir=%d, %s'%(i,n,j,fl)
+    os.chdir(start_dir)
+    return  
+    
 
 def tick_data_combine_dates_multi(TICKERs,base_dir, ticker_folder, start, supress='yes'):
     """
@@ -87,11 +118,12 @@ def tick_data_combine_dates_single(ticker, listdir, directory=None):
     store = pd.HDFStore(directory+'\\'+ticker+'.combined.h5')
 
     #get list of existing dates in the HDF5 data store
-    if len(store.dataframe)==0:
+    if '/dates' in store.keys():
+        olddates = list(store.dates.index) #return type is datetime.date
+    elif len(store.dataframe)==0:
         olddates = []
-    else:
-        olddates= list(pd.Series(store.dataframe.index).map(pd.Timestamp.date).unique())
-        #olddates = store.dates
+    else: #return type is datetime.date
+        olddates= list(pd.Series(store.dataframe.index).map(pd.Timestamp.date).unique()).sort()
         
     #get list of files to read in
     files2=[]
