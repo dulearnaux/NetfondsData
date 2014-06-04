@@ -16,7 +16,8 @@ import get_lists as getl
 def HDF_create_date_node(file_):
     """creates a node for all available dates in an existing HDF5 file"""
     store = pd.HDFStore(file_)
-    dates = np.unique(store.dataframe.index.date).sort()
+    dates = np.unique(store.dataframe.index.date)
+    dates.sort()
     dates2 = pd.DataFrame(pd.to_datetime(dates), index=dates, columns=['dates'])
     store.put('dates', dates2, format='fixed',expectedrows=len(dates2))
     store.close()
@@ -29,6 +30,7 @@ def HDF_create_date_nodes_multi(directories):
     start_dir = os.getcwd() 
     files=[]
     i,j=0,0
+    start = time.time()
     for directory in directories:
         j+=1
         os.chdir(directory)
@@ -37,9 +39,10 @@ def HDF_create_date_nodes_multi(directories):
         for fl in files:
             i+=1
             HDF_create_date_node(fl)
-            print 'completed date node for i=%d of %d, dir=%d, %s'%(i,n,j,fl)
+            t=(time.time()-start)/60
+            print 'completed date node for i=%d of %d, dir=%d, %-22s %-6.2f min'%(i,n,j,fl,t)
     os.chdir(start_dir)
-    return  
+    return t
     
 
 def tick_data_combine_dates_multi(TICKERs,base_dir, ticker_folder, start, supress='yes'):
@@ -108,6 +111,10 @@ def tick_data_combine_dates_single(ticker, listdir, directory=None):
             files.remove(fl)
             break
         store.append('dataframe', temp, format='table', complib='blosc', complevel=9,expectedrows=len(temp))
+        #do the date node        
+        temp_date = [temp.index[0].date()]
+        temp_date =  pd.DataFrame(pd.to_datetime(temp_date), index=temp_date, columns=['dates'])
+        store.put('dates', temp_date, format='fixed',expectedrows=len(temp_date))        
         store.close()
         
     
@@ -127,12 +134,14 @@ def tick_data_combine_dates_single(ticker, listdir, directory=None):
         
     #get list of files to read in
     files2=[]
+    newdates=[]
     for fl in files:
         if 'combined' in fl:
             continue
         date=pd.datetime.strptime(fl.replace('.csv','').replace(ticker+'.',''),'%Y%m%d').date()
         if date not in olddates:
             files2.append(fl)
+            newdates.append(date)
         else:
             pass
         
@@ -163,7 +172,20 @@ def tick_data_combine_dates_single(ticker, listdir, directory=None):
         #dates= list(pd.Series(df.index).map(pd.Timestamp.date).unique())         
         #store.append('dates', dates, format='table',  complib='blosc', complevel=9, expectedrows=len(df))
         store.append('dataframe', df, format='table',  complib='blosc', complevel=9, expectedrows=len(df))
-    
+        
+        assert len(newdates)>0, 'no new dates, but we have df>0'
+        
+        #create all_dates variable. unique values, sorted.
+        all_dates = list(set(olddates + newdates))
+        all_dates.sort()
+        dates = pd.DataFrame(pd.to_datetime(all_dates), index=all_dates, columns=['dates'])
+        #write to the store.    
+        store.put('dates', dates, format='fixed',expectedrows=len(dates))
+        
+    else:
+        assert len(newdates)==0, 'len(newdates)!=0, but len(df)==0'
+        
+    #close out the store
     store.close()
    
     os.chdir(start_dir)
@@ -180,7 +202,6 @@ def combine_dates_multi_process_wrapper(TICKERs=None, indicies=None,  directorie
     if directory is not passed, act within the current directory
     """    
     curdir = os.getcwd() # save starting directory so we can revert back at end of function    
-   
 
     #Create dictionsry with {ticker:directory} pairs
     #This is needed to tell the single_ticker_combine file where to look for files
@@ -189,13 +210,14 @@ def combine_dates_multi_process_wrapper(TICKERs=None, indicies=None,  directorie
         assert type(TICKERs)==list
         assert len(TICKERs)>0
         assert (indicies==None and directories==None)
-        dirSPX = curdir + '\\Combined\\SPX'
-        dirETF = curdir + '\\Combined\\ETF'
-        dirNA = curdir + '\\Combined'
+        basedir='D:\\Financial Data\\Netfonds\\DailyTickDataPull'
+        dirSPX = basedir + '\\Combined\\SPX'
+        dirETF = basedir + '\\Combined\\ETF'
+        dirNA = basedir + '\\Combined'
         
         #get list of tickers in the above directory
-        ETFtickers = getl.get_list_tickers_in_dir(['ETF'])
-        SPXtickers = getl.get_list_tickers_in_dir(['SPX'])
+        ETFtickers = getl.get_list_tickers_in_dir(dirETF)[0]
+        SPXtickers = getl.get_list_tickers_in_dir(dirSPX)[0]
         for ticker in TICKERs:
             if ticker in ETFtickers:
                 dirs[ticker] = dirETF
