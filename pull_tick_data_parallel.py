@@ -144,7 +144,7 @@ def pull_tickdata_parallel(queue, tickers, latest_date, mktdata='combined',nTot=
         if supress=='yes':
             sys.stdout = sys.__stdout__          
           
-        tempstr = '%-12s: %-10s: Iter=%5d'%(pName,name,i)+ ', %-3s'%data +' complete in %5.2f min'%((time.time()-sTime)/60)        
+        tempstr = '%-12s: %-10s: Iter=%5d'%(pName,name,i)+ ', %-3s'%data +'dates complete in %5.2f min'%((time.time()-sTime)/60)        
         to_pass = ({name:date}, tempstr)
         queue.put(to_pass)  
         sys.stdout.flush()
