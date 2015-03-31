@@ -37,7 +37,7 @@ def multi_intraday_pull2(TCKR,start=None,end=None, maxiter=30,extract='all', fol
         end = pd.datetime.now()
         start = pd.datetime.min
     if (start!=None and end==None):
-        end = pd.datetime.now()
+        end = pd.datetime.now().date()
         print "set end="+end.strftime('%Y%m%d')
     
     
@@ -63,4 +63,11 @@ def multi_intraday_pull2(TCKR,start=None,end=None, maxiter=30,extract='all', fol
         date = date - dt.timedelta(days=1)
         
     return str(i)
-     
+    
+if __name__=='__main__':
+    direct='D:\\Financial Data\\Netfonds\\DailyTickDataPull\\Combined\\ETF'
+    ticker='TVIX.O'
+    ticker='GLD.A'
+    start=pd.datetime(2015, 3, 10, 0, 0).date()
+    end=pd.datetime(2015, 3, 29, 0, 0).date()
+    multi_intraday_pull2(TCKR=ticker,start=start,end=end,directory=direct)
