@@ -30,7 +30,6 @@ def ExchangeTickers2CSV(url, ind,datestr,filepath):
             if len(csvstring)==0:
                 print 'No '+ind +' data for this date'
                 print 'Using '+ind +' tickers from the .csv file on disk'
-                #AMEX = pd.read_csv(filepath+'AMEX.A.txt', sep=';', names =names)
                 urlread=1
                 continue
             else:

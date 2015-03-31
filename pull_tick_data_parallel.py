@@ -16,10 +16,7 @@ def setup_parallel(tickers, mktdata='combined', n_process=3,
     directory = baseDir
     date = pd.datetime.strptime(pd.datetime.now().strftime('%Y%m%d'),'%Y%m%d')  - pd.offsets.BDay(1)
     datestr = date.strftime('%Y%m%d')
-    
-    #get list of tickers
-#    tickers = NTL.get_netfonds_tickers(toget) #get list of tickers from files or internet
-    
+       
     #break up problem into parts (number of processes)
     length = len(tickers)
     index=[]
