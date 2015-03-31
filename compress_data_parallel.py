@@ -141,18 +141,18 @@ def compress_data_single_ticker(TCKR, listdir, directory, compression='bz2', com
         return string
 
     #check if hdf file exists for this ticker    
-    hdf = TCKR+'.combined.h5'
-    if not(os.path.isfile(hdf)):
-#        HDFcreate.create(TCKR, directory)        
-        print TCKR+': no hdf5 file in:'+directory
-        print 'could not archive any .csv files for:' +TCKR
-        print 'create hdf5 file first with tick_data_combine'
-        print 'program terminated'
-        f = open('D:\\Financial Data\\Netfonds\\DailyTickDataPull\\errorlog.txt','a')
-        f.write('%-8s: no hdf5 file in directory:%s \n'%(TCKR,directory))
-        f.close()
-        sys.stdout.flush()
-        return 0
+#    hdf = TCKR+'.combined.h5'
+#    if not(os.path.isfile(hdf)):
+##        HDFcreate.create(TCKR, directory)        
+#        print TCKR+': no hdf5 file in:'+directory
+#        print 'could not archive any .csv files for:' +TCKR
+#        print 'create hdf5 file first with tick_data_combine'
+#        print 'program terminated'
+#        f = open('D:\\Financial Data\\Netfonds\\DailyTickDataPull\\errorlog.txt','a')
+#        f.write('%-8s: no hdf5 file in directory:%s \n'%(TCKR,directory))
+#        f.close()
+#        sys.stdout.flush()
+#        return 0
         
     
     #remove combined files #and files not merged into h5 file
@@ -224,7 +224,7 @@ def compress_data_single_ticker(TCKR, listdir, directory, compression='bz2', com
 if __name__ == '__main__':
     os.chdir('D:\\Google Drive\\Python\\FinDataDownload')
 
-    directories = ['D:\\Financial Data\\Netfonds\\temp\\DailyTickDataPull\\Combined\\ETF']
+    directories = ['D:\\Financial Data\\Netfonds\\DailyTickDataPull\\Combined\\ETF']
     compress_tickers_parallel(tickers=None, directories=directories, compression='bz2', complevel=9, n_process=3)
 
 
