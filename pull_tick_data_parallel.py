@@ -3,13 +3,13 @@ import pandas as pd
 import os
 os.chdir('D:\\Google Drive\\Python\\FinDataDownload')
 import multi_intraday_pull2 as mul
-import Netfonds_Ticker_List as NTL   
+#import Netfonds_Ticker_List as NTL   
 import multiprocessing
 import sys
 import time
 import StringIO
 
-def setup_parallel(toget=['SPX','ETF'], mktdata='combined', n_process=3, 
+def setup_parallel(tickers, mktdata='combined', n_process=3, 
                     baseDir = 'D:\\Financial Data\\Netfonds\\DailyTickDataPull', supress='yes'):
     
     #some args for the write file
@@ -18,9 +18,9 @@ def setup_parallel(toget=['SPX','ETF'], mktdata='combined', n_process=3,
     datestr = date.strftime('%Y%m%d')
     
     #get list of tickers
-    tickers = NTL.get_netfonds_tickers(toget) #get list of tickers from files or internet
+#    tickers = NTL.get_netfonds_tickers(toget) #get list of tickers from files or internet
     
-    #break up problem into thirds, or number of processes
+    #break up problem into parts (number of processes)
     length = len(tickers)
     index=[]
     df_list=[]
@@ -43,7 +43,7 @@ def setup_parallel(toget=['SPX','ETF'], mktdata='combined', n_process=3,
     latest_dates_df['latest_date'] = pd.to_datetime(latest_dates_df['latest_date'])  
     print 'Read Latest_dates using pd.read_csv'    
     
-    #start the writing file process
+    #start the writing latest_dates file process
     w = multiprocessing.Process(target=write_latest_dates, args=(queue,latest_dates_df, directory, date, datestr, length))    
     w.start()  
     
@@ -65,7 +65,7 @@ def setup_parallel(toget=['SPX','ETF'], mktdata='combined', n_process=3,
     
     
 def write_latest_dates(queue,latest_dates_df, directory, date, datestr, length):
-    print 'Entered write_lates_dates function'    
+    print 'Entered write_latest_dates function'    
           
     log_file_output = open(directory+'\\logfiles\\logfile'+ datestr +'.txt','w')
     log_file_output2 = open(directory+'\\logfiles\\logfile.txt','a')
